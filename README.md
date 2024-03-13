@@ -1,27 +1,23 @@
 # JDK 22 - What's up doctor ?
 
-I actually discover what's new in JDK22 and how java become more attractive day by day.
-I'd like to share a compilation of what I have discovered and tried with my short conclusion and point of view.
-
+I dicover what's new in JDK22. I think Java become more and more attractive day by day.
+Here I'd like to share a compilaiton of what I liked the most in this last release. Hope this will be interesting and allow you to get the most out of java this year.
 Before start, we can find the release note here : https://jdk.java.net/22/release-notes
 
 ### JEP 456: Unnamed Variables & Patterns
-Sometimes we need to declare variables without using it, for matching patterns or for specifics contexts.
-With JEP 456, we can now uses `_` instad of declaring the variable.
-This works for pattern too, and allow to ignore the type and the name of the registration component  in pattern matching.
+One of the most interesting JEP in this release, Unnamed variable and patterns. Comming from a enginering team who introduced me Scala and pattern matching, I have to admit that I was missing something when I had to declare variable patterns. Sometimes we have to declare variables or patterns we will never use, With JEP 456, we can now uses `_` for this.
 
-####  Unnamed Variables
-A very simple example about how you can now skip the variable declaration. Here we count the number of orders in an (bad ? :D) iterable order.
-Singular `order`, is never used (and IDE will trigger a warning) you can simplify by replacing `order` by `_`
-
+Let's take this example: 
 ```java
 static int count(Iterable<Order> orders) {
     int total = 0;
-    for (Order order : orders)    // order is never unused
+    for (Order order : orders) // <-- order is never used
         total++;
     return total;
 ```
-Become
+
+A very simple peace of code that count the number of order in a list. `order`, is never used (and IDE will trigger a warning) so we can simplify by replacing it  by `_`
+
 ```java
 static int count(Iterable<Order> orders) {
     int total = 0;
@@ -30,18 +26,17 @@ static int count(Iterable<Order> orders) {
     return total;
 ```
 
-I already know, I'm going abuse it in `try/catch` clauses :
+One other more interesting example we can found is when we catch Exception that we will never use. 
+We can do this : 
+
 ```java
 try { ... }
 catch (Exception _) { ... }
 catch (Throwable _) { ... }
 ```
 
-####  Unnamed Patterns
-For me, unnamed pattern will empower [`JEP 441: Pattern Matching for switch`](https://openjdk.org/jeps/441) delivered in JDK21
-Now we can use unnamed patterns and
+We can use unnamed variable to declare patterns, for example in this switch 
 
-We can pass from this :
 ```java
 sealed abstract class Ball permits RedBall, BlueBall, GreenBall { }
 final  class RedBall   extends Ball { }
@@ -56,7 +51,8 @@ switch (ball) {
 }
 ```
 Here `RedBall` and `BlueBall` calls the same function with ball as parameters and  `red` `blue` and `green` are all unused.
-So we can inline `RedBall` and `BlueBall` in a same branch and replace `red` `blue` and `green`.
+With the JEP, we can now refactore it by : 
+
 ```java
  switch (box) {
         case Box(RedBall _), Box(BlueBall _) -> processBox(box);
@@ -64,14 +60,17 @@ So we can inline `RedBall` and `BlueBall` in a same branch and replace `red` `bl
         case Box(var _)                      -> pickAnotherBox();
         }
  ```
-Note : We added a switch branch for all other `Box` with `var _` that will catch all other patterns.
+
+and don't mind the variables names and patterns.
+For me this will greatly improve [`JEP 441: Pattern Matching for switch`](https://openjdk.org/jeps/441) delivered in JDK21
 
 You can add [Guard](https://openjdk.org/jeps/441#Case-refinement) pattern. Remember this guard cover the whole label branch and not only one pattern.
 We can do :
 ```java
 case Box(RedBall _), Box(BlueBall _) when x == 42 -> processBox(b);
 ```
-and not
+
+and **not**
 ```java 
 case Box(RedBall _) when x == 0, Box(BlueBall _) when x == 42 -> processBox(b);
 ```
