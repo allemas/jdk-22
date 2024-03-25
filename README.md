@@ -1,6 +1,7 @@
 # JDK 22 - What's up doctor ?
 
 I actually discover what's new in JDK22 and how java become more attractive day by day.
+
 I'd like to share a compilation of what I have discovered and tried with my short conclusion and point of view.
 
 Before start, we can find the release note here : https://jdk.java.net/22/release-notes
@@ -82,12 +83,12 @@ if (r instanceof ColoredPoint(Point(int x, int y), Color c)) {
     ... x ... y ... 
 }
 ```
-Color is not used here, we can unname it with :
+Color is not used here, we can unnamed it with :
 ```java
 if (r instanceof ColoredPoint(Point(int x, int y), _)) { ... x ... y ... }
 ```
 
-### JEP 447: Statements before super(...) - FEATURE PREVIEW !
+### JEP 447: Statements before super(...) - IT'S A FEATURE PREVIEW !
 
 The main goal is to give developers greater freedom to express behaviors of constructors by adding logic while maintaining
 the guarantee that constructors run in top-down order during the class instantiation, **ensuring the code in the subclass constructor cannot interfere with the superclass instancation.**
@@ -159,7 +160,7 @@ Java app launcher now be able to run program based on multiple files of java sou
 ## JEP 459: String Templates (Second Preview)  - FEATURE PREVIEW !
 
 Actually developers routinely compose String with concatenation (+), StringBuilder, String::format or MessageFormat. All of these are hard to read or verbose to much.
-Template expressiosn are a new kind of expression in java and can perform string interpolation but helps the developers compose strings safely and efficiently.
+Template expression are a new kind of expression in java and can perform string interpolation but helps the developers compose strings safely and efficiently.
 
 ```java 
 String name = "Joan";
@@ -187,7 +188,7 @@ String msg = STR."The file \{filePath} \{file.exists() ? "does" : "does not"} ex
 | "The file tmp.dat does exist" or "The file tmp.dat does not exist"
 ```
 
-Multiline is now supported in the source file without introducing newlines ! The value of the embedded expression is interpolated int the result at the position of the `\ `
+Multiline is supported in the source file without introducing newlines ! The value of the embedded expression is interpolated int the result at the position of the `\ `
 The template consider to continue on the same line.
 ```java
 String time = STR."The time is \{
@@ -317,9 +318,6 @@ record QueryBuilder(Connection conn)
         ResultSet rs = ps.executeQuery();
 ```
 
-## JEP 460: Vector API (Seventh Incubator)
-
-
 ## JEP 461: Stream Gatherers (Preview)
 Stream API support now custom intermediate operations. This will allow stream pipeline to transform data.
 
@@ -341,3 +339,58 @@ is equivalent to
 source.gather(a.andThen(b).andThen(c)).collect(...)
 ```
 
+## JEP 462: Structured Concurrency (Second Preview)
+
+The main objective is to simplify concurrent programing by introducing an API to structure it. By this you will be able to manage sets of subtask running on different threads with a better observability.
+
+If we look the shared example in the JEP here : 
+```java
+Response handle() throws ExecutionException, InterruptedException {
+    Future<String>  user  = esvc.submit(() -> findUser());
+    Future<Integer> order = esvc.submit(() -> fetchOrder());
+    String theUser  = user.get();   // Join findUser
+    int    theOrder = order.get();  // Join fetchOrder
+    return new Response(theUser, theOrder);
+}
+```
+
+We have two concurrent task, each can fail and we need to wait both have finished before return. 
+The developer should coordinate manually the lifetime of theses two subtasks and recover if anything go wrong.
+
+If Virtual thread allow to spawn a ton of thread. Structured concurrency propose to coordinate them and enable observability tools.
+With the Structured Concurrency API build a maintainable, reliable and observable code(for a webserver for ex) will be easier. 
+
+With theses tools, we can recore the previous example.
+
+```java
+Response handle() throws ExecutionException, InterruptedException {
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+        Supplier<String>  user  = scope.fork(() -> findUser());
+        Supplier<Integer> order = scope.fork(() -> fetchOrder());
+
+        scope.join()            // Join both subtasks
+             .throwIfFailed();  // ... and propagate errors
+
+        // Here, both subtasks have succeeded, so compose their results
+        return new Response(user.get(), order.get());
+    }
+}
+```
+
+We find here a new StructuredTaskScope here, in a try/catch block, findUser and fetchOrder are forked in the StructuredTaskScope,
+As in the first example, these task are executed in parallel but here we can use the API to call join method and throw an exception if something go wrong.
+
+ErrorHandling, Cancelation, clarity and observability are guaranties by the StructuredTaskScope class API.
+If en exception occur the API is propagate the error and cancel the other thread.
+
+StructuredTaskScope don't come alone, principally:
+- StructuredTaskScope create a new (virtual) thread for each subtask. A subtask can create its own nested StructuredTaskScope to fork its own subtasks, thus creating a hierarchy.
+- Shutdown policies deal with concurrent subtasks it is common to use short-circuiting patterns to avoid doing unnecessary work.
+- Processing results : allow to manage composite results and permit processing subtasks results.
+
+I'll let you discover the rest with Fan-in scenarios and Custom shutdown policies [here](https://openjdk.org/jeps/462#Custom-shutdown-policies)
+
+
+This is the first time I summarize JDK release, hope you enjoy it and you discover new things.
+If I made mistake let me know and contact me, nobody is perfect. 
+See you next release :) 
