@@ -21,7 +21,7 @@ static int count(Iterable<Order> orders) {
         total++;
     return total;
 ```
-Become
+Becomes
 ```java
 static int count(Iterable<Order> orders) {
     int total = 0;
@@ -107,7 +107,7 @@ public class PositiveBigInteger extends BigInteger {
 
 }
 
-// BECOME 
+// BECOMES
 
 public class PositiveBigInteger extends BigInteger {
 
