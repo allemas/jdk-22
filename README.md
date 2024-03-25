@@ -1,15 +1,14 @@
 # JDK 22 - What's up doctor ?
 
-I actually discover what's new in JDK22 and how java become more attractive day by day.
-
+I actually discovered what's new in JDK22 and how Java became more attractive day by day.
 I'd like to share a compilation of what I have discovered and tried with my short conclusion and point of view.
 
-Before start, we can find the release note here : https://jdk.java.net/22/release-notes
+Before we start, we can find the release note here : https://jdk.java.net/22/release-notes
 
 ### JEP 456: Unnamed Variables & Patterns
-Sometimes we need to declare variables without using it, for matching patterns or for specifics contexts.
-With JEP 456, we can now uses `_` instad of declaring the variable.
-This works for pattern too, and allow to ignore the type and the name of the registration component  in pattern matching.
+Sometimes we need to declare variables without using it, for matching patterns or for specific contexts.
+With JEP 456, we can now use `_` instead of declaring the variable.
+This works for pattern too, and allows you to ignore the type and the name of the registration component  in pattern matching.
 
 ####  Unnamed Variables
 A very simple example about how you can now skip the variable declaration. Here we count the number of orders in an (bad ? :D) iterable order.
@@ -56,8 +55,10 @@ switch (ball) {
     case GreenBall green -> stopProcessing(); // <- green var is unused
 }
 ```
-Here `RedBall` and `BlueBall` calls the same function with ball as parameters and  `red` `blue` and `green` are all unused.
-So we can inline `RedBall` and `BlueBall` in a same branch and replace `red` `blue` and `green`.
+
+`RedBall` and `BlueBall` call the same function with balls as parameters and  `red` `blue` and `green` are all unused.
+So we can inline `RedBall` and `BlueBall` in the same branch and replace `red` `blue` and `green`.
+
 ```java
  switch (box) {
         case Box(RedBall _), Box(BlueBall _) -> processBox(box);
@@ -67,7 +68,7 @@ So we can inline `RedBall` and `BlueBall` in a same branch and replace `red` `bl
  ```
 Note : We added a switch branch for all other `Box` with `var _` that will catch all other patterns.
 
-You can add [Guard](https://openjdk.org/jeps/441#Case-refinement) pattern. Remember this guard cover the whole label branch and not only one pattern.
+You can add [Guard](https://openjdk.org/jeps/441#Case-refinement) pattern. Remember this guard covers the whole label branch and not only one pattern.
 We can do :
 ```java
 case Box(RedBall _), Box(BlueBall _) when x == 42 -> processBox(b);
@@ -91,9 +92,9 @@ if (r instanceof ColoredPoint(Point(int x, int y), _)) { ... x ... y ... }
 ### JEP 447: Statements before super(...) - IT'S A FEATURE PREVIEW !
 
 The main goal is to give developers greater freedom to express behaviors of constructors by adding logic while maintaining
-the guarantee that constructors run in top-down order during the class instantiation, **ensuring the code in the subclass constructor cannot interfere with the superclass instancation.**
+the guarantee that constructors run in top-down order during the class instantiation, **ensuring the code in the subclass constructor cannot interfere with the superclass instancation.*
 
-We ca now revent unnecessary work in `super()` statement before validate an argument. By this we can now able to check or prepare argument before calling the superclass constructor.
+We can now prevent unnecessary work in the `super()` statement before validating an argument. By this we are now able to check or prepare arguments before calling the superclass constructor.
 
 ```java
 public class PositiveBigInteger extends BigInteger {
@@ -148,19 +149,17 @@ public class Sub extends Super {
 
 ## JEP 457: Class-File API FEATURE PREVIEW !
 
-The objective here is providing a standard API for parsing generating and transforming java class file.
+The objective here is providing a standard API for parsing, generating and transforming java class files.
 By this API, developers can now: Parse, Generate and transform a classfile
-
 
 ## JEP 458: Launch Multi-File Source-Code Programs
 
-Java app launcher now be able to run program based on multiple files of java source code. By this the transition for large projects will be more smooth.
-
+Java app launchers now are able to run programs based on multiple files of java source code. By this the transition for large projects will be more smooth.
 
 ## JEP 459: String Templates (Second Preview)  - FEATURE PREVIEW !
 
-Actually developers routinely compose String with concatenation (+), StringBuilder, String::format or MessageFormat. All of these are hard to read or verbose to much.
-Template expression are a new kind of expression in java and can perform string interpolation but helps the developers compose strings safely and efficiently.
+Actually developers routinely compose String with concatenation (+), StringBuilder, String::format or MessageFormat. All of these are hard to read or verbose too much.
+Template expressions are a new kind of expression in Java and can perform string interpolation but helps the developers compose strings safely and efficiently.
 
 ```java 
 String name = "Joan";
@@ -188,8 +187,9 @@ String msg = STR."The file \{filePath} \{file.exists() ? "does" : "does not"} ex
 | "The file tmp.dat does exist" or "The file tmp.dat does not exist"
 ```
 
-Multiline is supported in the source file without introducing newlines ! The value of the embedded expression is interpolated int the result at the position of the `\ `
-The template consider to continue on the same line.
+Multiline is supported in the source file without introducing newlines ! The value of the embedded expression is interpolated `int` the result at the position of the `\ `
+The template is considered to continue on the same line.
+
 ```java
 String time = STR."The time is \{
     // The java.time.format package is very useful
@@ -202,7 +202,7 @@ String time = STR."The time is \{
 
 ####  FMT Processor
 
-FMT is another template processor, it also interprest the format specified in the left of the embedded expressions.
+FMT is another template processor, it also interpret the format specified in the left of the embedded expressions.
 
 **The format specifiers are the same as those defined in java.util.Formatter** [Documentation](https://www.logicbig.com/tutorials/core-java-tutorial/java-se-api/util-formatter.html)
 
@@ -319,7 +319,7 @@ record QueryBuilder(Connection conn)
 ```
 
 ## JEP 461: Stream Gatherers (Preview)
-Stream API support now custom intermediate operations. This will allow stream pipeline to transform data.
+Stream API now has custom intermediate operations. This will allow stream pipelines to transform data.
 
 ###  We introduce the flowing built-in in the java.util.stream.Gatherers class:
 - fold is a stateful many-to-one gatherer which constructs an aggregate incrementally and emits that aggregate when no more input elements exist.
@@ -341,7 +341,7 @@ source.gather(a.andThen(b).andThen(c)).collect(...)
 
 ## JEP 462: Structured Concurrency (Second Preview)
 
-The main objective is to simplify concurrent programing by introducing an API to structure it. By this you will be able to manage sets of subtask running on different threads with a better observability.
+The main objective is to simplify concurrent programming by introducing an API to structure it. By this you will be able to manage sets of subtasks running on different threads with a better observability.
 
 If we look the shared example in the JEP here : 
 ```java
@@ -354,14 +354,15 @@ Response handle() throws ExecutionException, InterruptedException {
 }
 ```
 
-We have two concurrent task, each can fail and we need to wait both have finished before return. 
-The developer should coordinate manually the lifetime of theses two subtasks and recover if anything go wrong.
+We have two concurrent tasks, each can fail and we need to wait until both have finished before returning.
+The developer should manually coordinate the lifetime of these two subtasks and recover if anything goes wrong.
 
-If Virtual thread allow to spawn a ton of thread. Structured concurrency propose to coordinate them and enable observability tools.
-With the Structured Concurrency API build a maintainable, reliable and observable code(for a webserver for ex) will be easier. 
 
-With theses tools, we can recore the previous example.
+If Virtual thread allows spawning a ton of thread. Structured concurrency proposes to coordinate them and enable observability tools.
+With the Structured Concurrency API building a maintainable, reliable and observable code(for a web server for example) will be easier.
 
+
+With these tools, we can refactor the previous example like this :
 ```java
 Response handle() throws ExecutionException, InterruptedException {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
@@ -378,19 +379,18 @@ Response handle() throws ExecutionException, InterruptedException {
 ```
 
 We find here a new StructuredTaskScope here, in a try/catch block, findUser and fetchOrder are forked in the StructuredTaskScope,
-As in the first example, these task are executed in parallel but here we can use the API to call join method and throw an exception if something go wrong.
+As in the first example, these tasks are executed in parallel but here we can use the API to call join methods and throw an exception if something goes wrong.
 
-ErrorHandling, Cancelation, clarity and observability are guaranties by the StructuredTaskScope class API.
-If en exception occur the API is propagate the error and cancel the other thread.
+ErrorHandling, Cancelation, clarity and observability are guarantees by the StructuredTaskScope class API.
+If an exception occurs the API will propagate the error and cancel the other thread.
 
 StructuredTaskScope don't come alone, principally:
-- StructuredTaskScope create a new (virtual) thread for each subtask. A subtask can create its own nested StructuredTaskScope to fork its own subtasks, thus creating a hierarchy.
-- Shutdown policies deal with concurrent subtasks it is common to use short-circuiting patterns to avoid doing unnecessary work.
+- StructuredTaskScope creates a new (virtual) thread for each subtask. A subtask can create its own nested StructuredTaskScope to fork its own subtasks, thus creating a hierarchy.
+- Shutdown policies deal with concurrent subtasks. It is common to use short-circuiting patterns to avoid doing unnecessary work.
 - Processing results : allow to manage composite results and permit processing subtasks results.
 
 I'll let you discover the rest with Fan-in scenarios and Custom shutdown policies [here](https://openjdk.org/jeps/462#Custom-shutdown-policies)
 
-
-This is the first time I summarize JDK release, hope you enjoy it and you discover new things.
-If I made mistake let me know and contact me, nobody is perfect. 
-See you next release :) 
+This is the first time I summarize the JDK release, hope you enjoy it and you discover new things.
+If I made a mistake let me know and contact me, nobody is perfect.
+See you next release :)
