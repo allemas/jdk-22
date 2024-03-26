@@ -38,10 +38,8 @@ catch (Throwable _) { ... }
 ```
 
 ####  Unnamed Patterns
-For me, unnamed pattern will empoyour [`JEP 441 Pattern Matching for switch`](https//openjdk.org/jeps/441) delivered in JDK21
-Now you can use unnamed patterns and
-
-you can transition from this:
+For me, unnamed pattern will empower the Pattern Matching syntax [`JEP 441 Pattern Matching for switch`](https//openjdk.org/jeps/441) delivered in JDK21
+Now you can use unnamed patterns and you can transition from this:
 ```java
 sealed abstract class Ball permits RedBall, BlueBall, GreenBall { }
 final  class RedBall   extends Ball { }
@@ -59,6 +57,7 @@ switch (ball) {
 `RedBall` and `BlueBall` call the same function with balls as parameters and  `red` `blue` and `green` are all unused.
 So you can inline `RedBall` and `BlueBall` in the same branch and replace `red` `blue` and `green`.
 
+Now suppose that we define a record class Box which can hold any type of Ball, but might also hold the null value:
 ```java
  switch (box) {
         case Box(RedBall _), Box(BlueBall _) -> processBox(box);
