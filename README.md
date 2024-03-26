@@ -3,15 +3,15 @@
 I actually discovered what's new in JDK22 and how Java became more attractive day by day.
 I'd like to share a compilation of what I have discovered and tried with my short conclusion and point of view.
 
-Before we start, we can find the release note here : https://jdk.java.net/22/release-notes
+Before you start, you can find the release note here : https://jdk.java.net/22/release-notes
 
 ### JEP 456: Unnamed Variables & Patterns
-Sometimes we need to declare variables without using it, for matching patterns or for specific contexts.
-With JEP 456, we can now use `_` instead of declaring the variable.
+Sometimes you need to declare variables without using it, for matching patterns or for specific contexts.
+With JEP 456, you can now use `_` instead of declaring the variable.
 This works for pattern too, and allows you to ignore the type and the name of the registration component  in pattern matching.
 
 ####  Unnamed Variables
-A very simple example about how you can now skip the variable declaration. Here we count the number of orders in an (bad ? :D) iterable order.
+A very simple example about how you can now skip the variable declaration. Here you count the number of orders in an (bad ? :D) iterable order.
 Singular `order`, is never used (and IDE will trigger a warning) you can simplify by replacing `order` by `_`
 
 ```java
@@ -30,7 +30,7 @@ static int count(Iterable<Order> orders) {
     return total;
 ```
 
-I already know, I'm going abuse it in `try/catch` clauses :
+I already know, I'm going abuse it in `try/catch` clauses:
 ```java
 try { ... }
 catch (Exception _) { ... }
@@ -38,10 +38,10 @@ catch (Throwable _) { ... }
 ```
 
 ####  Unnamed Patterns
-For me, unnamed pattern will empower [`JEP 441: Pattern Matching for switch`](https://openjdk.org/jeps/441) delivered in JDK21
-Now we can use unnamed patterns and
+For me, unnamed pattern will empoyour [`JEP 441 Pattern Matching for switch`](https//openjdk.org/jeps/441) delivered in JDK21
+Now you can use unnamed patterns and
 
-We can pass from this :
+you can transition from this:
 ```java
 sealed abstract class Ball permits RedBall, BlueBall, GreenBall { }
 final  class RedBall   extends Ball { }
@@ -57,7 +57,7 @@ switch (ball) {
 ```
 
 `RedBall` and `BlueBall` call the same function with balls as parameters and  `red` `blue` and `green` are all unused.
-So we can inline `RedBall` and `BlueBall` in the same branch and replace `red` `blue` and `green`.
+So you can inline `RedBall` and `BlueBall` in the same branch and replace `red` `blue` and `green`.
 
 ```java
  switch (box) {
@@ -66,10 +66,10 @@ So we can inline `RedBall` and `BlueBall` in the same branch and replace `red` `
         case Box(var _)                      -> pickAnotherBox();
         }
  ```
-Note : We added a switch branch for all other `Box` with `var _` that will catch all other patterns.
+Note: you added a switch branch for all other `Box` with `var _` that will catch all other patterns.
 
 You can add [Guard](https://openjdk.org/jeps/441#Case-refinement) pattern. Remember this guard covers the whole label branch and not only one pattern.
-We can do :
+you can do:
 ```java
 case Box(RedBall _), Box(BlueBall _) when x == 42 -> processBox(b);
 ```
@@ -78,13 +78,13 @@ and not
 case Box(RedBall _) when x == 0, Box(BlueBall _) when x == 42 -> processBox(b);
 ```
 
-Less common case you will be able to match patterns for `instanceof`, here an example :
+Less common case you will be able to match patterns for `instanceof`, here an example:
 ```java
 if (r instanceof ColoredPoint(Point(int x, int y), Color c)) {
     ... x ... y ... 
 }
 ```
-Color is not used here, we can unnamed it with :
+Color is not used here, you can rename it with _:
 ```java
 if (r instanceof ColoredPoint(Point(int x, int y), _)) { ... x ... y ... }
 ```
@@ -94,7 +94,7 @@ if (r instanceof ColoredPoint(Point(int x, int y), _)) { ... x ... y ... }
 The main goal is to give developers greater freedom to express behaviors of constructors by adding logic while maintaining
 the guarantee that constructors run in top-down order during the class instantiation, **ensuring the code in the subclass constructor cannot interfere with the superclass instancation.*
 
-We can now prevent unnecessary work in the `super()` statement before validating an argument. By this we are now able to check or prepare arguments before calling the superclass constructor.
+you can now prevent unnecessary work in the `super()` statement before validating an argument. By this you are now able to check or prepare arguments before calling the superclass constructor.
 
 ```java
 public class PositiveBigInteger extends BigInteger {
@@ -183,7 +183,7 @@ String t = STR."Access at \{req.date} \{req.time} from \{req.ipAddress}";
 
 **To avoid refactoring, double quote characters can now be USED INSIDE the expressions without being escaped**
 ```java
-String msg = STR."The file \{filePath} \{file.exists() ? "does" : "does not"} exist";
+String msg = STR."The file \{filePath} \{file.exists() ? "does": "does not"} exist";
 | "The file tmp.dat does exist" or "The file tmp.dat does not exist"
 ```
 
@@ -321,7 +321,7 @@ record QueryBuilder(Connection conn)
 ## JEP 461: Stream Gatherers (Preview)
 Stream API now has custom intermediate operations. This will allow stream pipelines to transform data.
 
-###  We introduce the flowing built-in in the java.util.stream.Gatherers class:
+###  you introduce the flowing built-in in the java.util.stream.Gatherers class:
 - fold is a stateful many-to-one gatherer which constructs an aggregate incrementally and emits that aggregate when no more input elements exist.
 - mapConcurrent is a stateful one-to-one gatherer which invokes a supplied function for each input element concurrently, up to a supplied limit.
 - scan is a stateful one-to-one gatherer which applies a supplied function to the current state and the current element to produce the next element, which it passes downstream.
@@ -343,7 +343,7 @@ source.gather(a.andThen(b).andThen(c)).collect(...)
 
 The main objective is to simplify concurrent programming by introducing an API to structure it. By this you will be able to manage sets of subtasks running on different threads with a better observability.
 
-If we look the shared example in the JEP here : 
+If you look the shared example in the JEP here: 
 ```java
 Response handle() throws ExecutionException, InterruptedException {
     Future<String>  user  = esvc.submit(() -> findUser());
@@ -354,15 +354,15 @@ Response handle() throws ExecutionException, InterruptedException {
 }
 ```
 
-We have two concurrent tasks, each can fail and we need to wait until both have finished before returning.
+you have two concurrent tasks, each can fail and you need to wait until both have finished before returning.
 The developer should manually coordinate the lifetime of these two subtasks and recover if anything goes wrong.
 
 
 If Virtual thread allows spawning a ton of thread. Structured concurrency proposes to coordinate them and enable observability tools.
-With the Structured Concurrency API building a maintainable, reliable and observable code(for a web server for example) will be easier.
+With the Structured Concurrency API building a maintainable, reliable and observable code(for a youb server for example) will be easier.
 
 
-With these tools, we can refactor the previous example like this :
+With these tools, you can refactor the previous example like this:
 ```java
 Response handle() throws ExecutionException, InterruptedException {
     try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
@@ -378,8 +378,8 @@ Response handle() throws ExecutionException, InterruptedException {
 }
 ```
 
-We find here a new StructuredTaskScope here, in a try/catch block, findUser and fetchOrder are forked in the StructuredTaskScope,
-As in the first example, these tasks are executed in parallel but here we can use the API to call join methods and throw an exception if something goes wrong.
+you find here a new StructuredTaskScope here, in a try/catch block, findUser and fetchOrder are forked in the StructuredTaskScope,
+As in the first example, these tasks are executed in parallel but here you can use the API to call join methods and throw an exception if something goes wrong.
 
 ErrorHandling, Cancelation, clarity and observability are guarantees by the StructuredTaskScope class API.
 If an exception occurs the API will propagate the error and cancel the other thread.
@@ -387,7 +387,7 @@ If an exception occurs the API will propagate the error and cancel the other thr
 StructuredTaskScope don't come alone, principally:
 - StructuredTaskScope creates a new (virtual) thread for each subtask. A subtask can create its own nested StructuredTaskScope to fork its own subtasks, thus creating a hierarchy.
 - Shutdown policies deal with concurrent subtasks. It is common to use short-circuiting patterns to avoid doing unnecessary work.
-- Processing results : allow to manage composite results and permit processing subtasks results.
+- Processing results: allow to manage composite results and permit processing subtasks results.
 
 I'll let you discover the rest with Fan-in scenarios and Custom shutdown policies [here](https://openjdk.org/jeps/462#Custom-shutdown-policies)
 
